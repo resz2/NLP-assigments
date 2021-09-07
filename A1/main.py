@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[708]:
+# In[885]:
 
 
 import nltk
@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-# In[709]:
+# In[886]:
 
 
 # importing dataset
@@ -19,14 +19,14 @@ df = pd.read_csv('a01_spam.csv')
 df.head()
 
 
-# In[710]:
+# In[887]:
 
 
 # info about the dataset
 df.describe()
 
 
-# In[711]:
+# In[888]:
 
 
 #check for duplicates
@@ -34,7 +34,7 @@ dup = df[df.duplicated()]
 dup.head()
 
 
-# In[712]:
+# In[889]:
 
 
 # removing duplicates
@@ -42,7 +42,7 @@ df.drop_duplicates(inplace=True)
 df.describe()
 
 
-# In[713]:
+# In[890]:
 
 
 # check null values
@@ -57,7 +57,7 @@ df.isnull().sum()
 # 
 # #### Punctuation and numbers are removed for better identification of actual words.
 
-# In[714]:
+# In[891]:
 
 
 # removing punctuation and numbers
@@ -68,7 +68,7 @@ df['t1'] = df.Message.apply(tokenizer.tokenize)
 df.head()
 
 
-# In[715]:
+# In[892]:
 
 
 ccount = 0
@@ -86,9 +86,9 @@ print('Total number of words starting with consonants:', ccount)
 
 
 # # Task 2: Capitalised words
-# #### We separate the data for ham and spam messages
+# #### We separate the data for ham and spam messages and check them separately
 
-# In[716]:
+# In[893]:
 
 
 df_ham = df[df.Category == 'ham']
@@ -97,7 +97,7 @@ print('number of ham messages:', len(df_ham))
 print('number of spam messages:', len(df_spam))
 
 
-# In[717]:
+# In[894]:
 
 
 # Checking ham messages
@@ -107,14 +107,14 @@ count = 0
 for words in df_ham['t1']:
     count += len(words)
     for word in words:
-        if(word.isupper()):
+        if(word.isupper() and len(word)>1):
             capcount +=  1
 
 percent = capcount/count * 100
 print('Percentage of capitalised word in ham messages: %f' % (percent), '%')
 
 
-# In[718]:
+# In[895]:
 
 
 # Checking spam messages
@@ -132,9 +132,9 @@ print('Percentage of capitalised word in spam messages: %f' % (percent), '%')
 
 
 # # Task 3: Email IDs and Phone Numbers
-# #### Check original messages for email IDs and phone numbers
+# #### Check the messages for email IDs and phone numbers using regex matching
 
-# In[719]:
+# In[896]:
 
 
 emails = {}
@@ -144,7 +144,7 @@ mailregex = '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
 phoneregex = '[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}'
 
 
-# In[720]:
+# In[897]:
 
 
 ham_mailcount = 0
@@ -176,7 +176,7 @@ print('Percentage of ham messages containing emails: %f' % (epercent), '%')
 print('Percentage of ham messages containing phone numbers: %f' % (ppercent), '%')
 
 
-# In[721]:
+# In[898]:
 
 
 spam_mailcount = 0
@@ -208,7 +208,7 @@ print('Percentage of spam messages containing emails: %f' % (epercent), '%')
 print('Percentage of spam messages containing phone numbers: %f' % (ppercent), '%')
 
 
-# In[722]:
+# In[899]:
 
 
 print('Total Number of emails found:', ham_mailcount+spam_mailcount)
@@ -218,7 +218,7 @@ print('Number of unique terms:', len(emails))
 emails
 
 
-# In[723]:
+# In[900]:
 
 
 print('Total Number of phone numbers found:', ham_phonecount+spam_phonecount)
@@ -228,7 +228,7 @@ print('Number of unique terms:', len(phone_nums))
 phone_nums
 
 
-# In[724]:
+# In[901]:
 
 
 totalmailmessage = spam_mailcount + ham_mailcount
@@ -241,7 +241,7 @@ print('Percentage of total messages with emails that are spam: %f' %(sepercent),
 print('Percentage of total messages with phone numbers that are spam: %f' %(sppercent), '%')
 
 
-# In[725]:
+# In[902]:
 
 
 hepercent = ham_mailcount / totalmailmessage * 100
@@ -252,18 +252,18 @@ print('Percentage of total messages with phone numbers that are ham: %f' %(hpper
 
 
 # # Task 4: Counting Currencies
-# #### Check original messages for any currency symbols
+# #### Check the messages for any currency symbols and currency words using regex matching
 
-# In[726]:
+# In[903]:
 
 
-moneyregex = '([\£\$\€\¥]{1}[ ]*[,\d]+\.?\d*|[,\d]+\.?\d*[ ]*pounds?)'
+moneyregex = '([\£\$\€\¥]{1}[ ]*[,\d]+\.?\d*|[,\d]+\.?\d*[ ]*([dD]ollars?|[pP]ounds?|[rR]upees?)+)'
 spam_moneycount = 0
 ham_moneycount = 0
 mvalues = set()
 
 
-# In[727]:
+# In[904]:
 
 
 for message in df_ham['Message']:
@@ -279,7 +279,7 @@ mpercent = ham_moneycount/len(df_ham) * 100
 print('Percentage of ham messages containing monetary values: %f' % (mpercent), '%')
 
 
-# In[728]:
+# In[905]:
 
 
 for message in df_spam['Message']:
@@ -295,7 +295,7 @@ mpercent = spam_moneycount/len(df_spam) * 100
 print('Percentage of spam messages containing monetary values: %f' % (mpercent), '%')
 
 
-# In[729]:
+# In[906]:
 
 
 print('Total Number of monetary terms found:', ham_moneycount+spam_moneycount)
@@ -307,9 +307,9 @@ mvalues
 
 
 # # Task 5: Counting Emojis
-# #### Check original messages for emoticons and print them
+# #### Tokenize the messages using TweetTokenizer to handle emoticon separation, and use regex matching with the nltk emoticon regex to check for emoticons
 
-# In[730]:
+# In[907]:
 
 
 from nltk.tokenize import TweetTokenizer
@@ -321,7 +321,7 @@ df['t5'] = df.Message.apply(tk.tokenize)
 df.head()
 
 
-# In[731]:
+# In[908]:
 
 
 count = 0
@@ -332,7 +332,7 @@ for words in df['t5']:
         count += 1
 
 
-# In[732]:
+# In[909]:
 
 
 print('Total number of emoticons:', count)
@@ -341,9 +341,9 @@ emoticons
 
 
 # # Task 6: Counting Clitics
-# #### Check original messages for words with clitics and print them
+# #### Check original messages for words with clitics using regex matching, and print them
 
-# In[733]:
+# In[910]:
 
 
 s = 'sd ds dad pois'
@@ -351,14 +351,14 @@ x = re.search('dad\s', s)
 x.group()
 
 
-# In[734]:
+# In[911]:
 
 
 cliticregex = '[a-zA-Z]+\'[a-zA-Z]{1,2}$'
 clitic_words = set()
 
 
-# In[735]:
+# In[912]:
 
 
 for words in df['t5']:
@@ -368,7 +368,7 @@ for words in df['t5']:
             clitic_words.add(cword.group())
 
 
-# In[736]:
+# In[913]:
 
 
 print('number of words with clitics:', len(clitic_words))
@@ -376,16 +376,16 @@ clitic_words
 
 
 # # Task 7: Starting with
-# #### Check original messages and print those that start with a given word
+# #### Check original messages and print those that start with a given word using regex matching
 
-# In[737]:
+# In[914]:
 
 
 word = input('Enter input word: ')
 regex = '^'+word+'\s'
 
 
-# In[738]:
+# In[915]:
 
 
 count = 0
@@ -396,23 +396,23 @@ for message in df['Message']:
         count += 1
 
 
-# In[739]:
+# In[916]:
 
 
 print('Number of messages starting with the word \'%s\' are - %d' %(word, count))
 
 
 # # Task 8: Ending with
-# #### Check original messages and print those that end with a given word
+# #### Check original messages and print those that end with a given word using regex matching
 
-# In[740]:
+# In[917]:
 
 
 word = input('Enter input word: ')
 regex = '\s'+word+'$'
 
 
-# In[741]:
+# In[918]:
 
 
 count = 0
@@ -423,7 +423,7 @@ for message in df['Message']:
         count += 1
 
 
-# In[742]:
+# In[919]:
 
 
 print('Number of messages ending with the word \'%s\' are - %d' %(word, count))
@@ -436,7 +436,7 @@ print('Number of messages ending with the word \'%s\' are - %d' %(word, count))
 # Using the observations from task 2, we classify a message as spam if more than 20% of the words in the message are capitalized.
 # This is done because ham messages also have the likelihood of containing some capitalized words.
 
-# In[743]:
+# In[920]:
 
 
 def isSpamCapital(words):
@@ -456,7 +456,7 @@ def isSpamCapital(words):
 only2 = df['t1'].apply(isSpamCapital)
 
 
-# In[744]:
+# In[921]:
 
 
 correct = (df['Category']==only2).sum()
@@ -467,7 +467,7 @@ print('accuracy of \"only 2\" heuristic is:', percent)
 # #### Only 3
 # Using the observations from task 3, we can see that spam messages are very likely to contain emails and phone numbers, while ham messages do not. So if a message contains either, we classify it as spam
 
-# In[745]:
+# In[922]:
 
 
 mailregex = '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
@@ -484,7 +484,7 @@ def isSpamEP(message):
 only3 = df['Message'].apply(isSpamEP)
 
 
-# In[746]:
+# In[923]:
 
 
 correct = (df['Category']==only3).sum()
@@ -495,7 +495,7 @@ print('accuracy of \"only 3\" heuristic is:', percent)
 # #### Only 4
 # Using the observations from task 4, we can see that spam messages have a much higher chance to contain monetary amounts, while ham messages do not. So if a message contains a monetary quantity we classify it as spam
 
-# In[747]:
+# In[924]:
 
 
 moneyregex = '([\£\$\€\¥]{1}[ ]*[,\d]+\.?\d*|[,\d]+\.?\d*[ ]*pounds?)'
@@ -510,7 +510,7 @@ def isSpamMoney(message):
 only4 = df['Message'].apply(isSpamMoney)
 
 
-# In[748]:
+# In[925]:
 
 
 correct = (df['Category']==only4).sum()
@@ -521,13 +521,13 @@ print('accuracy of \"only 4\" heuristic is:', percent)
 # #### both23
 # We classify a message as spam if it satisfies either heuristic 2 or heuristic 3
 
-# In[749]:
+# In[926]:
 
 
 both23 = ['spam' if (v1=='spam' or v2=='spam') else 'ham' for v1, v2 in zip(only2, only3)]
 
 
-# In[750]:
+# In[927]:
 
 
 correct = (df['Category']==both23).sum()
@@ -538,13 +538,13 @@ print('accuracy of \"both 2 and 3\" heuristic is:', percent)
 # #### both34
 # We classify a message as spam if it satisfies either heuristic 3 or heuristic 4
 
-# In[751]:
+# In[928]:
 
 
 both34 = ['spam' if (v1=='spam' or v2=='spam') else 'ham' for v1, v2 in zip(only3, only4)]
 
 
-# In[752]:
+# In[929]:
 
 
 correct = (df['Category']==both34).sum()
@@ -555,13 +555,13 @@ print('accuracy of \"both 3 and 4\" heuristic is:', percent)
 # #### both24
 # We classify a message as spam if it satisfies either heuristic 2 or heuristic 4
 
-# In[753]:
+# In[930]:
 
 
 both24 = ['spam' if (v1=='spam' or v2=='spam') else 'ham' for v1, v2 in zip(only2, only4)]
 
 
-# In[754]:
+# In[931]:
 
 
 correct = (df['Category']==both24).sum()
@@ -572,13 +572,13 @@ print('accuracy of \"both 2 and 4\" heuristic is:', percent)
 # #### all234
 # We classify a message as spam if it satisfies either heuristic 2 or heuristic 3 or heuristic 4
 
-# In[755]:
+# In[932]:
 
 
 all234 = ['spam' if (v1=='spam' or v2=='spam' or v3=='spam') else 'ham' for v1, v2, v3 in zip(only2, only3, only4)]
 
 
-# In[756]:
+# In[933]:
 
 
 correct = (df['Category']==all234).sum()
